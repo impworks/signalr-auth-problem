@@ -35,7 +35,7 @@ namespace SignalrAuthSample.Tools
                 // uncommenting this line makes everything suddenly work
                 // return SuccessResult(1);
                 
-                var token = GetToken();
+                var token = GetHeaderToken() ?? GetQueryToken();
                 if (string.IsNullOrEmpty(token))
                     return AuthenticateResult.NoResult();
             
@@ -65,16 +65,24 @@ namespace SignalrAuthSample.Tools
         }
 
         /// <summary>
-        /// Checks if there is a token specified.
+        /// Checks if there is a token specified in headers.
         /// </summary>
-        private string GetToken()
+        private string GetHeaderToken()
         {
             const string Scheme = "Bearer ";
 
             var auth = Context.Request.Headers["Authorization"].ToString() ?? "";
             return auth.StartsWith(Scheme)
                 ? auth.Substring(Scheme.Length)
-                : "";
+                : null;
+        }
+
+        /// <summary>
+        /// Checks if there's a token specified in the query.
+        /// </summary>
+        private string GetQueryToken()
+        {
+            return Context.Request.Query["access_token"];
         }
     }
 }
